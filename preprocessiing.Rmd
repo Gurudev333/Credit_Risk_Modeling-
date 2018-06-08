@@ -1,0 +1,252 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+```{r}
+#read the dataset
+file=readRDS("loan_data_1.rds")
+
+```
+
+```{r}
+#create frame for dataset
+credit_frame=data.frame(file)
+```
+
+```{r}
+  str(credit_frame)   
+```
+```{r}
+       head(credit_frame)
+```
+```{r}
+        sapply(credit_frame,function(x) sum(is.na(x)))
+```
+
+```{r}
+     library(gmodels)
+     CrossTable(credit_frame$loan_status)
+
+```
+
+
+```{r}
+    CrossTable(credit_frame$home_ownership)
+```
+
+
+```{r}
+ CrossTable(credit_frame$grade)
+```
+```{r}
+    print(summary(credit_frame$loan_amnt))
+    print(summary(credit_frame$int_rate))
+    print(summary(credit_frame$emp_length))
+```
+
+
+```{r}
+   plot(credit_frame$annual_inc,ylab="Annual Income")
+
+```
+```{r}
+      hist(credit_frame$annual_inc,sqrt(nrow(credit_frame)),xlab = "Annual Income",main = "histogram of annual income")
+```
+From scatter plot extrem value is removed 
+```{r}
+  index_outlier_annua_inc<-which(credit_frame$annual_inc>3000000)
+   index_outlier_annua_inc
+   nrow(credit_frame)
+   credit_frame<-credit_frame[-index_outlier_annua_inc,]
+   nrow(credit_frame)
+
+```
+```{r}
+      plot(credit_frame$annual_inc,ylab="Annual Income")
+
+```
+```{r}
+    hist(credit_frame$annual_inc,sqrt(nrow(credit_frame)),xlab = "Annual Income",main = "histogram of annual income")
+```
+
+still not look normanl
+```{r}
+  boxplot(credit_frame$annual_inc)
+```
+
+```{r}
+summary(credit_frame$annual_inc)
+```
+```{r}
+    temp_vector<-c("log_annual_income")
+    credit_frame[,temp_vector]<-NA
+```
+```{r}
+   credit_frame$log_annual_income<-log(credit_frame$annual_inc)
+```
+
+```{r}
+
+    hist(credit_frame$log_annual_inc,sqrt(nrow(credit_frame)),xlab = "log Annual Income",main = "histogram of log annual income")
+      
+```
+```{r}
+   summary(credit_frame$log_annual_income)
+```
+ 
+ 
+ 
+Looks normal distribution acepted
+```{r}
+   boxplot(credit_frame$age,ylab="age")
+```
+```{r}
+     hist(credit_frame$age,sqrt(nrow(credit_frame)),ylab = "frequency",xlab = "age",main = "Histogram of age")
+```
+
+```{r}
+   summary(credit_frame$age)
+```
+Looks constant mean and median So distribution is quet normal
+Interest rate has some missing values so fill it with mean
+```{r}
+summary(credit_frame$int_rate)
+index_int_rate_NA<-which(is.na(credit_frame$int_rate))
+credit_frame$int_rate[index_int_rate_NA]<-mean(credit_frame$int_rate,na.rm = TRUE)
+summary(credit_frame$int_rate)
+```
+
+```{r}
+plot(credit_frame$int_rate,xlab = "frequency",ylab = "interest rate",main = "Interest rate")
+```
+
+```{r}
+  hist(credit_frame$int_rate,sqrt(nrow(credit_frame)),ylab = "frequency",xlab = "interest rate",main = "Histogram of Interest rate")
+```
+
+```{r}
+  boxplot(credit_frame$int_rate,ylab="Interst rate")
+```
+```{r}
+  summary(credit_frame$int_rate)
+```
+
+From distribution and summary it looks normal and acepted
+```{r}
+   
+summary(credit_frame$emp_length)
+index_emp_length_NA<-which(is.na(credit_frame$emp_length))
+credit_frame$emp_length[index_emp_length_NA]<-mean(credit_frame$emp_length,na.rm = TRUE)
+summary(credit_frame$emp_length)
+     
+```
+```{r}
+      boxplot(credit_frame$emp_length,main="Boxplot of log emp length")
+```
+
+```{r}
+   hist(credit_frame$emp_length,sqrt(nrow(credit_frame)),ylab = "Frequency",xlab = "Emp length",main = "Histogram of Emp length")
+```
+Emp length has extrem values so preprocess it 
+```{r}
+   credit_frame$emp_length<-credit_frame$emp_length+1
+```
+```{r}
+    temp_vector<-c("log_emp_length")
+    credit_frame[,temp_vector]<-NA
+```
+```{r}
+    credit_frame$log_emp_length<-log(credit_frame$emp_length)
+```
+```{r}
+    boxplot(credit_frame$log_emp_length)
+    
+```
+```{r}
+   hist(credit_frame$log_emp_length,ylab = "frequency",xlab ="Log emp length ", main = "Histogram of Log of emp length")
+    
+```
+```{r}
+       boxplot(credit_frame$log_emp_length,ylab="Log of emp length")
+```
+```{r}
+   summary(credit_frame$log_emp_length)
+```
+Looks normal because normal mean and median
+```{r}
+     boxplot(credit_frame$loan_amnt)
+```
+```{r}
+   summary(credit_frame$loan_amnt)
+```
+```{r}
+    hist(credit_frame$loan_amnt,sqrt(nrow(credit_frame)),ylab = "Frequency",xlab = "Loan Amount", main = "Histogram of Loan Amount")
+```
+```{r}
+     temp_vector<-c("log_loan_amnt")
+    credit_frame[,temp_vector]<-NA
+```
+  
+```{r}
+    credit_frame$log_loan_amnt<-log(credit_frame$loan_amnt)
+```
+
+```{r}
+   boxplot(credit_frame$log_loan_amnt,main="Boxplot of log loan amnt")
+```
+```{r}
+    hist(credit_frame$log_loan_amnt,sqrt(nrow(credit_frame)),ylab = "frequency",xlab = "Log loan amnt",main = "Histogram of Log loan amnt")
+```
+
+```{r}
+   summary(credit_frame$log_loan_amnt)
+```
+lets create some new features 
+```{r}
+    CrossTable(credit_frame$grade,credit_frame$loan_status,prop.r = TRUE,prop.c = FALSE,prop.t = FALSE,prop.chisq = FALSE)   
+  
+```
+
+Accordingly from above observation the loan status depends on the grade of the customer 
+```{r}
+     temp_vector<-c("grade_multiplier")
+     credit_frame[,temp_vector]<-NA
+
+```
+
+```{r}
+    credit_frame<-within(credit_frame,grade_multiplier[grade=='A']<-(0.941))
+credit_frame<-within(credit_frame,grade_multiplier[grade=='B']<-(0.894))
+credit_frame<-within(credit_frame,grade_multiplier[grade=='C']<-(0.853))
+credit_frame<-within(credit_frame,grade_multiplier[grade=='D']<-(0.820))
+credit_frame<-within(credit_frame,grade_multiplier[grade=='E']<-(0.797))
+credit_frame<-within(credit_frame,grade_multiplier[grade=='F']<-(0.735))
+credit_frame<-within(credit_frame,grade_multiplier[grade=='G']<-(0.625))
+
+```
+
+```{r}
+  temp_vector<-c("loan_amnt_int_rate_multiplier")
+     credit_frame[,temp_vector]<-NA
+   
+```
+
+```{r}
+   credit_frame$loan_amnt_int_rate_multiplier<-((credit_frame$int_rate)*(credit_frame$log_loan_amnt)*(credit_frame$grade_multiplier))
+```
+
+```{r}
+  hist(credit_frame$loan_amnt_int_rate_multiplier,sqrt(nrow(credit_frame)),ylab = "frequency",xlab = "loan_amnt_int_rate_multiplier",main = "Histogram of loan_amnt_int_rate_multiplier ")
+```
+```{r}
+   boxplot(credit_frame$loan_amnt_int_rate_multiplier,main="loan_amnt_int_rate_multiplier")
+```
+
+```{r}
+    summary(credit_frame$loan_amnt_int_rate_multiplier)
+```
+
+
+
